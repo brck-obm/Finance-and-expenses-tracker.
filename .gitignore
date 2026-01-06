@@ -5,5 +5,12 @@
 node_modules/
 dist/
 .env
+/build
+*.o
+*.out
+*.log
+node_modules/
+dist/
+.env
 .vscode/
 .idea/
