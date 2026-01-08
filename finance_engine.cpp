@@ -136,4 +136,6 @@ double Ledger::total_debits(
 		}
 		return total;
 	}
+
+//add Ledger::total_category
 //this is not executable or compilable yet. No main().
