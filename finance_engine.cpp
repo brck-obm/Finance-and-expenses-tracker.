@@ -160,26 +160,38 @@ double Ledger::total_category(
 //main entry point 
 int main(){
 	//test cases
-account my_account{"my_account", 1, accountType::Asset, "2024-01-08T08:29:00Z"}; //ISO8601 time (YYYY-MM-DDTHH-mm-SSZ)
+account my_account{"my_account", 1, accountType::Asset, "2024-01-08T08:29:00Z"};//ISO8601 time (YYYY-MM-DDTHH:mm:SSZ)
+account account_2{"account_2", 2, accountType::Liability, "2025-02-19T04:21:33Z"}; //{name, account type, date created}
 category salary{1, 1, "Salary", true};
 category groceries{2, 1, "Groceries", true};
+category electric_bills{3, 1, "Electric Bills", true};
+category salary_account2{4, 2, "Salary account_2", true}; //{id, account id, name, is_active}
+category arbitrary_amount{5,2,"Arbitrary amount", true};
 
 std::vector<ledgerEntry> entries = {
 	{1, 1, salary.id, 1000.0, entryDirection::Credit, "2025-12-08T09:32:03Z", "December salary", entryStatus::Posted},
 	{2, 1, groceries.id, 50.0, entryDirection::Debit, "2025-12-10T014:53:08Z", "Groceries for the family", entryStatus::Posted},
-	{3, 1, groceries.id, 50.0, entryDirection::Debit, "2025-12-12T05:23:42Z", "Voided groceries", entryStatus::Voided}
+	{3, 1, groceries.id, 50.0, entryDirection::Debit, "2025-12-12T05:23:42Z", "Voided groceries", entryStatus::Voided},
+	{4, 1, electric_bills.id, 100.0, entryDirection::Debit, "2025-12-26T09:04:23Z", "Electric bills", entryStatus::Posted},
+	{5, 2, salary_account2.id, 233.0, entryDirection::Credit, "2025-08-24T02:42:45Z", "salary for me", entryStatus::Posted},
+	{6, 2, arbitrary_amount.id, 122.42, entryDirection::Debit, "2025-09-01T23:23:34Z", "Amount taken away", entryStatus::Posted}
 };
 
 Ledger ledger;
-std::string start = "2025-12-01T00-00-00Z";
+std::string start = "2025-01-01T00:00:00Z";
 std::string end = "2025-12-31T23-59-59Z";
 
-std::cout<<"Balance: " << ledger.balance(my_account, entries, end) << "\n";
-std::cout<<"Credits: " << ledger.total_credits(my_account.id, entries, start, end) << "\n";
-std::cout<<"Debits: " << ledger.total_debits(my_account.id,entries, start, end) << "\n";
-std::cout<<"Category total: " << ledger.total_category(my_account.id, groceries.id, entryDirection::Debit, entries, start, end) << "\n";
-
+std::cout<<"Balance a : " << ledger.balance(my_account, entries, end) << "\n";
+std::cout<<"Credits a : " << ledger.total_credits(my_account.id, entries, start, end) << "\n";
+std::cout<<"Debits a : " << ledger.total_debits(my_account.id,entries, start, end) << "\n";
+std::cout<<"Category total a : " << ledger.total_category(my_account.id, groceries.id, entryDirection::Debit, entries, start, end) << "\n";
+std::cout<<"\n";
+std::cout<<"Balance b : " << ledger.balance(account_2, entries, end) << "\n";
+std::cout<<"Credits b : " << ledger.total_credits(account_2.id, entries, start, end) << "\n";
+std::cout<<"Debits b : " << ledger.total_debits(account_2.id, entries, start, end) << "\n";
+std::cout<<"Category total b : " << ledger.total_category(account_2.id, arbitrary_amount.id, entryDirection::Debit, entries, start, end) << "\n";
 return 0;
 }
 
-
+//NEXT: Add three dp fixed precision support (multiply user inputs by SF1000, use that for computation, then output divided by SF1000. 
+//NEXT: Add formal currency support and actual time objects using chrono 
