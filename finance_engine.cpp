@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 
+
 enum class accountType{
 	Liability,
 	Asset
@@ -174,7 +175,7 @@ std::vector<ledgerEntry> entries = {
 	{3, 1, groceries.id, 50.0, entryDirection::Debit, "2025-12-12T05:23:42Z", "Voided groceries", entryStatus::Voided},
 	{4, 1, electric_bills.id, 100.0, entryDirection::Debit, "2025-12-26T09:04:23Z", "Electric bills", entryStatus::Posted},
 	{5, 2, salary_account2.id, 233.0, entryDirection::Credit, "2025-08-24T02:42:45Z", "salary for me", entryStatus::Posted},
-	{6, 2, arbitrary_amount.id, 122.42, entryDirection::Debit, "2025-09-01T23:23:34Z", "Amount taken away", entryStatus::Posted}
+	{6, 2, arbitrary_amount.id, 142.42, entryDirection::Debit, "2025-09-01T23:23:34Z", "Amount taken away", entryStatus::Posted}
 };
 
 Ledger ledger;
@@ -190,6 +191,8 @@ std::cout<<"Balance b : " << ledger.balance(account_2, entries, end) << "\n";
 std::cout<<"Credits b : " << ledger.total_credits(account_2.id, entries, start, end) << "\n";
 std::cout<<"Debits b : " << ledger.total_debits(account_2.id, entries, start, end) << "\n";
 std::cout<<"Category total b : " << ledger.total_category(account_2.id, arbitrary_amount.id, entryDirection::Debit, entries, start, end) << "\n";
+
+
 return 0;
 }
 
