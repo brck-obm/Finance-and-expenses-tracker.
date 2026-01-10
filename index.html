@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In & Sign Up</title>
+  <style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .container {
+    background: #ffffff;
+    width: 300px;
+    padding: 24px;
+    border: 1px solid #ddd;
+  }
+
+  h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+    font-weight: normal;
+    text-align: center;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+
+  button {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #000;
+    background: #000;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  .link {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 13px;
+    color: #000;
+    cursor: pointer;
+  }
+
+  .link:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Sign Up Page -->
+  <div class="container" id="registerBox">
+    <h2>Sign Up</h2>
+    <input type="text" id="regUser" placeholder="Username" />
+    <input type="email" id="regEmail" placeholder="Email" />
+    <input type="password" id="regPass" placeholder="Password" />
+    <input type="password" id="regConfirm" placeholder="Confirm Password" />
+    <button onclick="signUp()">Sign Up</button>
+    <div class="link" onclick="showLogin()">Already have an account? Sign In</div>
+  </div>
+  </div>
+
+  <!-- Sign In Page -->
+  <div class="container" id="loginBox" style="display:none;">
+    <h2>Sign In</h2>
+    <input type="text" id="loginUser" placeholder="Username" />
+    <input type="password" id="loginPass" placeholder="Password" />
+    <button onclick="signIn()">Sign In</button>
+    <div class="link" onclick="showRegister()">Don’t have an account? Sign Up</div>
+  </div>
+  </div>
+
+  <script>
+    function showSign In() {
+      document.getElementById('registerBox').style.display = 'none';
+      document.getElementById('loginBox').style.display = 'block';
+    }
+
+    function showSign Up() {
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('registerBox').style.display = 'block';
+    }
+
+    function signUp() {
+      const user = document.getElementById('regUser').value;
+      const email = document.getElementById('regEmail').value;
+      const pass = document.getElementById('regPass').value;
+      const confirm = document.getElementById('regConfirm').value;
+
+      if (!user || !email || !pass || !confirm) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      if (pass !== confirm) {
+        alert('Passwords do not match');
+        return;
+      }
+
+      localStorage.setItem('username', user);
+      localStorage.setItem('email', email);
+      localStorage.setItem('password', pass);
+
+      alert('Sign up successful! Please sign in.');
+      showLogin();
+    }
+
+      localStorage.setItem('username', user);
+      localStorage.setItem('password', pass);
+      alert('Sign Up successful! Please login.');
+      showSign In();
+    }
+
+    function signIn() {
+      const user = document.getElementById('loginUser').value;
+      const pass = document.getElementById('loginPass').value;
+
+      const savedUser = localStorage.getItem('username');
+      const savedPass = localStorage.getItem('password');
+
+      if (user === savedUser && pass === savedPass) {
+        // redirect to homepage
+        window.location.href = 'home.html';
+      } else {
+        alert('Wrong username or password');
+      }
+    } else {
+        alert('Wrong username or password');
+      }
+    }
+  </script>
+
+</body>
+</html>
