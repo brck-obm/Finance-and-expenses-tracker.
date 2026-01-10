@@ -1,7 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cassert>
+#include <chrono>
+#include <sstream>
+
+using timestamp = std::chrono::sys_seconds;
 
 enum class accountType{
 	Liability,
@@ -23,7 +26,7 @@ struct account{
 	std::string name;
 	int id;
 	accountType type;
-	std::string created_at;
+	timestamp created_at;
 };
 
 struct category{
@@ -39,7 +42,7 @@ struct ledgerEntry{
 	int category_id;
 	double amount;
 	entryDirection direction;
-	std::string time_stamp;
+	timestamp time_stamp;
 	std::string description;
 	entryStatus status;
 };
@@ -49,21 +52,21 @@ class Ledger{
 	 double balance(
 	  const account& Account,
 	  const std::vector<ledgerEntry>& entries,
-          const std::string& upToTimeStamp
+          const timestamp& upToTimeStamp
 	 )const;
 
 	 double total_credits(
 	  int accountID,
 	  const std::vector<ledgerEntry>& entries,
-	  const std::string& start,
-	  const std::string& end
+	  const timestamp& start,
+	  const timestamp& end
 	 )const;
 
 	 double total_debits(
 	  int accountID,
 	  const std::vector<ledgerEntry>& entries,
-	  const std::string& start,
-	  const std::string& end
+	  const timestamp& start,
+	  const timestamp& end
 	 )const;
 
 	 double total_category(
@@ -71,8 +74,8 @@ class Ledger{
 	  int categoryID,
 	  entryDirection entry_direction,
 	  const std::vector<ledgerEntry>& entries,
-	  const std::string& start,
-	  const std::string& end
+	  const timestamp& start,
+	  const timestamp& end
 	 )const;
 };
 
@@ -88,7 +91,7 @@ constexpr int sign(accountType acc, entryDirection dir) noexcept{
 double Ledger::balance(
 		const account& Account,
 		const std::vector<ledgerEntry>& entries,
-		const std::string& upToTimeStamp
+		const timestamp& upToTimeStamp
 		)
 	const{
 		double Balance = 0.0;
@@ -105,8 +108,8 @@ double Ledger::balance(
 double Ledger::total_credits(
 		int accountID,
 		const std::vector<ledgerEntry>& entries,
-		const std::string& start,
-		const std::string& end
+		const timestamp& start,
+		const timestamp& end
 		)
 const{double total = 0.0;
 	for (const auto&e : entries){
@@ -123,8 +126,8 @@ const{double total = 0.0;
 double Ledger::total_debits(
 		int accountID,
 		const std::vector<ledgerEntry>& entries,
-		const std::string& start,
-		const std::string& end
+		const timestamp& start,
+		const timestamp& end
 		)
 
 	const{double total = 0.0;
@@ -144,8 +147,8 @@ double Ledger::total_category(
 		int categoryID,
 		entryDirection entry_direction,
 		const std::vector<ledgerEntry>& entries,
-		const std::string& start,
-		const std::string& end
+		const timestamp& start,
+		const timestamp& end
 		)
 	const{double total = 0.0;
 
@@ -161,25 +164,33 @@ double Ledger::total_category(
 		return total;
 	}
 
+timestamp iso8601_parse(const std::string& s){
+	std::istringstream in{s};
+	timestamp tp;
+
+	in >> std::chrono::parse("%FT%T%z", tp);
+	return tp;
+
+}
+
 int main(){
 
 	Ledger ledger;
 
-	std::string start = "2025-01-01T00:00:00Z";
-	std::string end = "2025-12-31T23:59:59Z";
-	account account1{"account1", 1, accountType::Liability, "2025-01-03T23:21:23Z"};
+	timestamp start = iso8601_parse("2025-01-01T00:00:00Z");
+	timestamp end = iso8601_parse("2025-12-31T23:59:59Z");
+	account account1{"account1", 1, accountType::Liability, iso8601_parse("2025-01-03T23:21:23Z")};
 	category net{1, 1, "net amount", true};
 	category away{2, 1, "away from net", true};
 	std::vector<ledgerEntry> entries = {
-		{1, account1.id, net.id, 500.0, entryDirection::Credit, "2025-06-21T11:23:23Z", "salary", entryStatus::Posted},
-		{2, account1.id, away.id, 210.0, entryDirection::Credit, "2025-07-23T22:12:31Z", "expenses", entryStatus::Posted}
+		{1, account1.id, net.id, 500.0, entryDirection::Credit, iso8601_parse("2025-06-21T11:23:23Z"), "salary", entryStatus::Posted},
+		{2, account1.id, away.id, 210.0, entryDirection::Credit, iso8601_parse("2025-07-23T22:12:31Z"), "expenses", entryStatus::Posted}
 	};
 
-	std::cout<<ledger.balance(account1, entries, "2025-08-23T22:21:34Z") << "\n";
+	std::cout<<ledger.balance(account1, entries, iso8601_parse("2025-08-23T22:21:34Z")) << "\n";
 	std::cout<<ledger.total_credits(account1.id, entries, start, end) << "\n";
 	std::cout<<ledger.total_debits(account1.id, entries, start, end) << "\n";
 	std::cout<<ledger.total_category(account1.id, net.id, entryDirection::Credit, entries, start, end)<< "\n";
 
 }
 //NEXT: Add three dp fixed precision support (multiply user inputs by SF1000, use that for computation, then output divided by SF1000. 
-//NEXT: Add formal currency support and actual time objects using chrono 
