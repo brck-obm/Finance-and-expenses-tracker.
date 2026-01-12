@@ -6,6 +6,8 @@
 
 using timestamp = std::chrono::sys_seconds;
 
+constexpr double SF = 1000;
+
 enum class accountType{
 	Liability,
 	Asset
@@ -40,7 +42,7 @@ struct ledgerEntry{
 	int id;
 	int account_id;
 	int category_id;
-	double amount;
+	int64_t amount;
 	entryDirection direction;
 	timestamp time_stamp;
 	std::string description;
@@ -94,7 +96,7 @@ double Ledger::balance(
 		const timestamp& upToTimeStamp
 		)
 	const{
-		double Balance = 0.0;
+		int64_t Balance = 0;
 	for (const auto&e : entries){
 		if (e.account_id != Account.id) continue;
 		if (e.status != entryStatus::Posted) continue;
@@ -102,7 +104,7 @@ double Ledger::balance(
 		
 		Balance += e.amount * sign(Account.type, e.direction);
 	}
-           return Balance;
+           return static_cast<double>(Balance)/SF;
 	}
 
 double Ledger::total_credits(
@@ -111,7 +113,7 @@ double Ledger::total_credits(
 		const timestamp& start,
 		const timestamp& end
 		)
-const{double total = 0.0;
+const{int64_t total = 0;
 	for (const auto&e : entries){
 		if (e.account_id != accountID) continue;
 		if (e.status != entryStatus::Posted) continue;
@@ -120,7 +122,7 @@ const{double total = 0.0;
 
 		total += e.amount;
 	}
-	return total;
+	return static_cast<double>(total)/SF;
 }
 
 double Ledger::total_debits(
@@ -130,7 +132,7 @@ double Ledger::total_debits(
 		const timestamp& end
 		)
 
-	const{double total = 0.0;
+	const{int64_t total = 0;
 		for (const auto&e : entries){
 			if (e.account_id != accountID) continue;
 			if (e.status != entryStatus::Posted) continue;
@@ -140,7 +142,7 @@ double Ledger::total_debits(
 			total += e.amount;
 
 		}
-		return total;
+		return static_cast<double>(total)/SF;
 	}
 double Ledger::total_category(
 		int accountID,
@@ -150,7 +152,7 @@ double Ledger::total_category(
 		const timestamp& start,
 		const timestamp& end
 		)
-	const{double total = 0.0;
+	const{int64_t total = 0;
 
 		for (const auto&e : entries){
 			if (e.account_id != accountID) continue;
@@ -161,7 +163,7 @@ double Ledger::total_category(
 
 			total += e.amount;
 		}
-		return total;
+		return static_cast<double>(total)/SF;
 	}
 
 timestamp iso8601_parse(const std::string& s){
@@ -183,8 +185,8 @@ int main(){
 	category net{1, 1, "net amount", true};
 	category away{2, 1, "away from net", true};
 	std::vector<ledgerEntry> entries = {
-		{1, account1.id, net.id, 500.0, entryDirection::Credit, iso8601_parse("2025-06-21T11:23:23Z"), "salary", entryStatus::Posted},
-		{2, account1.id, away.id, 210.0, entryDirection::Credit, iso8601_parse("2025-07-23T22:12:31Z"), "expenses", entryStatus::Posted}
+		{1, account1.id, net.id, static_cast<int64_t>(500.234 * SF), entryDirection::Credit, iso8601_parse("2025-06-21T11:23:23Z"), "salary", entryStatus::Posted},
+		{2, account1.id, away.id, static_cast<int64_t>(210.221 * SF), entryDirection::Credit, iso8601_parse("2025-07-23T22:12:31Z"), "expenses", entryStatus::Posted}
 	};
 
 	std::cout<<ledger.balance(account1, entries, iso8601_parse("2025-08-23T22:21:34Z")) << "\n";
@@ -193,4 +195,5 @@ int main(){
 	std::cout<<ledger.total_category(account1.id, net.id, entryDirection::Credit, entries, start, end)<< "\n";
 
 }
-//NEXT: Add three dp fixed precision support (multiply user inputs by SF1000, use that for computation, then output divided by SF1000. 
+//LOG 12/01/2026: integer math added, storing values with int64_t presenting in double. 
+//NEXT: add fixed precision input support.
