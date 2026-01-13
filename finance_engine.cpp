@@ -3,10 +3,11 @@
 #include <vector>
 #include <chrono>
 #include <sstream>
+#include <cmath>
 
 using timestamp = std::chrono::sys_seconds;
 
-constexpr double SF = 1000;
+constexpr int64_t SF = 1000;
 
 enum class accountType{
 	Liability,
@@ -79,7 +80,32 @@ class Ledger{
 	  const timestamp& start,
 	  const timestamp& end
 	 )const;
+
 };
+
+constexpr int64_t bankers_round(double amount, int64_t scale){
+	double scaled = amount * scale;
+	int64_t integer_part = std::floor(scaled);
+	double decimal_part = scaled - integer_part;
+	double rounded;
+
+	if (decimal_part == 0.5){
+		if (integer_part % 2 == 0){
+			rounded = integer_part;
+		}
+		else{
+			rounded = integer_part + 1;
+		}
+	}
+	else if (decimal_part > 0.5){
+		rounded = integer_part + 1;
+	}
+	else{
+		rounded = integer_part;
+	}
+	return static_cast<int64_t>(rounded);
+}
+
 
 
 constexpr int sign(accountType acc, entryDirection dir) noexcept{
@@ -185,8 +211,8 @@ int main(){
 	category net{1, 1, "net amount", true};
 	category away{2, 1, "away from net", true};
 	std::vector<ledgerEntry> entries = {
-		{1, account1.id, net.id, static_cast<int64_t>(500.234 * SF), entryDirection::Credit, iso8601_parse("2025-06-21T11:23:23Z"), "salary", entryStatus::Posted},
-		{2, account1.id, away.id, static_cast<int64_t>(210.221 * SF), entryDirection::Credit, iso8601_parse("2025-07-23T22:12:31Z"), "expenses", entryStatus::Posted}
+		{1, account1.id, net.id, bankers_round(500.3245, SF), entryDirection::Credit, iso8601_parse("2025-06-21T11:23:23Z"), "salary", entryStatus::Posted},
+		{2, account1.id, away.id,bankers_round(210.2225, SF), entryDirection::Debit, iso8601_parse("2025-07-23T22:12:31Z"), "expenses", entryStatus::Posted}
 	};
 
 	std::cout<<ledger.balance(account1, entries, iso8601_parse("2025-08-23T22:21:34Z")) << "\n";
@@ -195,5 +221,6 @@ int main(){
 	std::cout<<ledger.total_category(account1.id, net.id, entryDirection::Credit, entries, start, end)<< "\n";
 
 }
-//LOG 12/01/2026: integer math added, storing values with int64_t presenting in double. 
+//LOG 12/01/2026: integer math added, storing values with int64_t presenting in double.
+//LOG 13/01/2026: banker's rounding added.
 //NEXT: add fixed precision input support.
